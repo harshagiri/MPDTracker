@@ -27,7 +27,7 @@ import edu.umo.mpdtracker.persist.DBReader;
  * start another service
  */
 @SuppressLint("SpecifyJobSchedulerIdRange")
-public class TestJobService extends JobService {
+public class MPDJobService extends JobService {
     private static final String TAG = "SyncService";
     private String CHANNEL_ID = "ANDROID";
 

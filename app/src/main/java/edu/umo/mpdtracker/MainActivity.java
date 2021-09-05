@@ -13,7 +13,6 @@ import android.icu.util.Calendar;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -24,7 +23,6 @@ import androidx.core.app.ActivityCompat;
 
 import com.applandeo.materialcalendarview.CalendarView;
 import com.applandeo.materialcalendarview.EventDay;
-import com.applandeo.materialcalendarview.listeners.OnDayClickListener;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -36,13 +34,12 @@ import java.util.concurrent.TimeUnit;
 import edu.umo.mpdtracker.Model.Medicine;
 import edu.umo.mpdtracker.adapter.MedicineLVAdapter;
 import edu.umo.mpdtracker.persist.DBReader;
-import edu.umo.mpdtracker.scheduler.TestJobService;
+import edu.umo.mpdtracker.scheduler.MPDJobService;
 
 public class MainActivity extends AppCompatActivity {
 
     public static final int RequestPermissionCode = 1;
     private ListView medicinesLV;
-    private String CHANNEL_ID = "ANDROID";
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
@@ -50,34 +47,31 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //Add button click listener to open "Add medicine" screen
         Button buttonAdd = (Button) findViewById(R.id.floatingActionButton);
-        buttonAdd.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        buttonAdd.setOnClickListener(v -> {
 
-                Intent in = new Intent(MainActivity.this, AddMedicineActivity.class);
-                startActivity(in);
+            Intent in = new Intent(MainActivity.this, AddMedicineActivity.class);
+            startActivity(in);
 
-                Log.d("LISTENER", "Executed");
-            }
+            Log.d("LISTENER", "Executed");
         });
 
+        // Load all the icons and medicine data on entire calendar during create
         paintAllMedsDataOnCalendar();
 
+        //Add day click listener to calendar
         CalendarView calendarView = findViewById(R.id.calendarView);
-        calendarView.setOnDayClickListener(new OnDayClickListener() {
-            @Override
-            public void onDayClick(EventDay eventDay) {
-                java.util.Calendar clickedDayCalendar = eventDay.getCalendar();
-                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-                paintMedicineDataOnCalendar(formatter.format(clickedDayCalendar.getTime()));
-            }
+        calendarView.setOnDayClickListener(eventDay -> {
+            java.util.Calendar clickedDayCalendar = eventDay.getCalendar();
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            paintMedicineDataOnCalendar(formatter.format(clickedDayCalendar.getTime()));
         });
 
-        paintMedicineDataOnCalendar(Calendar.getInstance());
+        //Execute this method to check if app has camera permission, else to get permission from end user
+        enableRuntimePermission();
 
-        EnableRuntimePermission();
-
+        //Schedule the job as final activity on app startup.
         MainActivity.scheduleJob(MainActivity.this);
     }
 
@@ -98,32 +92,13 @@ public class MainActivity extends AppCompatActivity {
     // schedule the start of the service every 10 - 30 seconds
     @RequiresApi(api = Build.VERSION_CODES.M)
     public static void scheduleJob(Context context) {
-        ComponentName serviceComponent = new ComponentName(context, TestJobService.class);
+        ComponentName serviceComponent = new ComponentName(context, MPDJobService.class);
         JobInfo.Builder builder = new JobInfo.Builder(0, serviceComponent);
         builder.setMinimumLatency(1 * 60 * 60 * 1000); // wait at least
         builder.setOverrideDeadline(8 * 60 * 60 * 1000); // maximum delay
-        //builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED); // require unmetered network
-        //builder.setRequiresDeviceIdle(true); // device should be idle
         builder.setRequiresCharging(false); // we don't care if the device is charging or not
         JobScheduler jobScheduler = context.getSystemService(JobScheduler.class);
         jobScheduler.schedule(builder.build());
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    //TODO: Rename method to appropriate convention
-    private void paintMedicineDataOnCalendar(Calendar calendar) {
-
-        String selectedDate = DateFormat.getDateInstance(DateFormat.FULL).format(calendar);
-        DBReader reader = new DBReader(MainActivity.this);
-
-        List returnedValue = reader.readFormDB(selectedDate);
-        if (returnedValue != null && returnedValue.size() > 0) {
-            MedicineLVAdapter adapter = new MedicineLVAdapter(this, (ArrayList<Medicine>) returnedValue);
-
-            medicinesLV = findViewById(R.id.dynamicList);
-            medicinesLV.setAdapter(adapter);
-            Log.d("DB READ", returnedValue.get(0).toString());
-        }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -193,16 +168,7 @@ public class MainActivity extends AppCompatActivity {
         return inputDate;
     }
 
-    private void loadDataInListview(List<Medicine> items) {
-        // after that we are passing our array list to our adapter class.
-        MedicineLVAdapter adapter = new MedicineLVAdapter(this, (ArrayList<Medicine>) items);
-
-        // after passing this array list to our adapter
-        // class we are setting our adapter to our list view.
-        medicinesLV.setAdapter(adapter);
-    }
-
-    public void EnableRuntimePermission() {
+    public void enableRuntimePermission() {
         if (ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this,
                 Manifest.permission.CAMERA)) {
             Toast.makeText(MainActivity.this, "CAMERA permission allows us to Access CAMERA app", Toast.LENGTH_LONG).show();

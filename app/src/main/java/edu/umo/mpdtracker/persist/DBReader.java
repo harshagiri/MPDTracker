@@ -18,7 +18,7 @@ public class DBReader {
     private SQLiteDatabase db;
 
     // Define a projection that specifies which columns from the database
-// you will actually use after this query.
+    // you will actually use after this query.
     private String[] projection = {
             BaseColumns._ID,
             DBReaderContract.DBEntry.COLUMN_NAME_MEDICINE_NAME,
@@ -43,19 +43,9 @@ public class DBReader {
     public List<Medicine> readFormDB(String selectedDate) {
         String rawQuery = "SELECT * FROM Medicine WHERE "
                 + DBReaderContract.DBEntry.COLUMN_NAME_MEDICINE_START_DATE + " <=? AND "
-                + DBReaderContract.DBEntry.COLUMN_NAME_MEDICINE_END_DATE+" >= ?";
+                + DBReaderContract.DBEntry.COLUMN_NAME_MEDICINE_END_DATE + " >= ?";
 
-        cursor = db.rawQuery(rawQuery, new String [] {selectedDate,selectedDate});
-
-        /*cursor = db.query(
-                DBReaderContract.DBEntry.TABLE_NAME,   // The table to query
-                projection,             // The array of columns to return (pass null to get all)
-                DBReaderContract.DBEntry.COLUMN_NAME_MEDICINE_START_DATE + "='" + selectedDate + "'",              // The columns for the WHERE clause
-                null,          // The values for the WHERE clause
-                null,                   // don't group the rows
-                null,                   // don't filter by row groups
-                null               // The sort order
-        );*/
+        cursor = db.rawQuery(rawQuery, new String[]{selectedDate, selectedDate});
 
         List meds = readResultSet();
         if (!meds.isEmpty() && meds.size() > 0) {

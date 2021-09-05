@@ -9,7 +9,7 @@ import androidx.annotation.RequiresApi;
 
 import edu.umo.mpdtracker.MainActivity;
 
-public class MyStartServiceReceiver extends BroadcastReceiver {
+public class MPDServiceReceiver extends BroadcastReceiver {
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override

@@ -22,6 +22,5 @@ public class DBReaderContract {
         public static final String COLUMN_NAME_MEDICINE_TYPE = "Type";
         public static final String COLUMN_NAME_MEDICINE_PHOTO = "MedicinePhoto";
     }
-
-
+    
 }
