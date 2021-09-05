@@ -13,4 +13,6 @@
     <string name="clear">Clear</string>
     <string name="add">Add</string>
     <string name="take_photo">Take Photo</string>
+    <string name="channel_name">Medicine Alerts</string>
+    <string name="channel_description">A notification channel created with DEFAULT importance to notify medicine dosage time to time.</string>
 </resources>

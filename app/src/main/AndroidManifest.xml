@@ -10,6 +10,19 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MPDTracker"
         android:parentActivityName = "edu.umo.mpdtracker.MainActivity">
+
+        <service
+            android:name = ".scheduler.TestJobService"
+            android:label= "Medicine Service"
+            android:permission="android.permission.BIND_JOB_SERVICE">
+        </service>
+
+        <receiver android:name=".scheduler.MyStartServiceReceiver" >
+            <intent-filter>
+                <action android:name="android.intent.action.SCREEN_ON" />
+            </intent-filter>
+        </receiver>
+
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -23,5 +36,5 @@
         <activity android:name=".AddMedicineActivity"></activity>
     </application>
     ß<uses-permission android:name="android.permission.CAMERA" />
-    <uses-feature android:name="android.hardware.camera" android:required="true"/>
+    <!--<uses-feature android:name="android.hardware.camera" android:required="true"/>-->
 </manifest>

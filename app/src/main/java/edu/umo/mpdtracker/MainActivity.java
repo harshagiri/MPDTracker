@@ -1,9 +1,11 @@
 package edu.umo.mpdtracker;
 
 import android.Manifest;
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.icu.text.DateFormat;
 import android.icu.text.SimpleDateFormat;
@@ -16,13 +18,13 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.applandeo.materialcalendarview.CalendarView;
-import com.applandeo.materialcalendarview.EventDay;
-import com.applandeo.materialcalendarview.listeners.OnDayClickListener;
-
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+
+import com.applandeo.materialcalendarview.CalendarView;
+import com.applandeo.materialcalendarview.EventDay;
+import com.applandeo.materialcalendarview.listeners.OnDayClickListener;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -34,11 +36,13 @@ import java.util.concurrent.TimeUnit;
 import edu.umo.mpdtracker.Model.Medicine;
 import edu.umo.mpdtracker.adapter.MedicineLVAdapter;
 import edu.umo.mpdtracker.persist.DBReader;
+import edu.umo.mpdtracker.scheduler.TestJobService;
 
 public class MainActivity extends AppCompatActivity {
 
     public static final int RequestPermissionCode = 1;
     private ListView medicinesLV;
+    private String CHANNEL_ID = "ANDROID";
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
@@ -71,6 +75,10 @@ public class MainActivity extends AppCompatActivity {
         });
 
         paintMedicineDataOnCalendar(Calendar.getInstance());
+
+        EnableRuntimePermission();
+
+        MainActivity.scheduleJob(MainActivity.this);
     }
 
     @Override
@@ -85,6 +93,20 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         paintAllMedsDataOnCalendar();
         Log.d("Resume", "Executed");
+    }
+
+    // schedule the start of the service every 10 - 30 seconds
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    public static void scheduleJob(Context context) {
+        ComponentName serviceComponent = new ComponentName(context, TestJobService.class);
+        JobInfo.Builder builder = new JobInfo.Builder(0, serviceComponent);
+        builder.setMinimumLatency(1 * 60 * 60 * 1000); // wait at least
+        builder.setOverrideDeadline(8 * 60 * 60 * 1000); // maximum delay
+        //builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED); // require unmetered network
+        //builder.setRequiresDeviceIdle(true); // device should be idle
+        builder.setRequiresCharging(false); // we don't care if the device is charging or not
+        JobScheduler jobScheduler = context.getSystemService(JobScheduler.class);
+        jobScheduler.schedule(builder.build());
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
