@@ -25,7 +25,9 @@
         <com.applandeo.materialcalendarview.CalendarView
             android:id="@+id/calendarView"
             android:layout_width="match_parent"
-            android:layout_height="396dp" />
+            android:layout_height="396dp"
+            android:animateLayoutChanges="true"
+            android:showDividers="middle|beginning|end" />
 
         <ListView
             android:id="@+id/dynamicList"
@@ -36,14 +38,15 @@
 
     <Button
         android:id="@+id/floatingActionButton"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_marginEnd="5dp"
+        android:layout_gravity="bottom"
+        android:layout_margin="10dp"
         android:contentDescription="@string/submit"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
         android:text="@string/add"
-        android:textSize="20sp"
-        app:icon="@android:drawable/ic_menu_add" />
+        android:textSize="20sp" />
 
 
 </LinearLayout>

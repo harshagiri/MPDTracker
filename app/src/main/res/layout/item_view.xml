@@ -4,16 +4,21 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginLeft="15dp"
+    android:layout_marginRight="15dp"
     android:orientation="vertical"
+    android:paddingLeft="15dp"
     android:paddingTop="5dp"
+    android:paddingRight="15dp"
     android:paddingBottom="5dp">
+
     <androidx.cardview.widget.CardView
         android:id="@+id/idCardView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
-        android:elevation="7dp"
         android:layout_margin="7dp"
+        android:elevation="7dp"
         app:cardCornerRadius="6dp"
         app:cardPreventCornerOverlap="false">
 
@@ -31,10 +36,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true">
+
                 <ImageView
                     android:id="@+id/idProductImage"
                     android:layout_width="30dp"
-                    android:layout_height="30dp"/>
+                    android:layout_height="30dp" />
             </LinearLayout>
 
             <!-- Rest of the product info and add/remove to/from cart symbols -->
