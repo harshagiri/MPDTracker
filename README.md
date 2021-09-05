@@ -20,3 +20,5 @@ Features - in pipeline
 2. Modifying or deleting medicines added
 
 This project is built as an academic project and resources are consumed from internet. I do not own the complete ownership hence will be suggested to use under GPL license.
+
+https://github.com/Applandeo/Material-Calendar-View
