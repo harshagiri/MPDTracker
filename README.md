@@ -22,3 +22,5 @@ Features - in pipeline
 This project is built as an academic project and resources are consumed from internet. I do not own the complete ownership hence will be suggested to use under GPL license.
 
 https://github.com/Applandeo/Material-Calendar-View
+
+Sticks to GNU - https://www.gnu.org/licenses/gpl-3.0.en.html
