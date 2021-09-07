@@ -2,9 +2,7 @@ package edu.umo.mpdtracker.adapter;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,12 +19,15 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
 
 import java.util.ArrayList;
 
 import edu.umo.mpdtracker.MainActivity;
 import edu.umo.mpdtracker.R;
 import edu.umo.mpdtracker.Model.Medicine;
+import edu.umo.mpdtracker.persist.DBDelete;
 
 public class MedicineLVAdapter extends ArrayAdapter<Medicine> {
 
@@ -34,6 +35,7 @@ public class MedicineLVAdapter extends ArrayAdapter<Medicine> {
         super(context, 0, dataModalArrayList);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
@@ -77,15 +79,12 @@ public class MedicineLVAdapter extends ArrayAdapter<Medicine> {
         int height = (int) (displayMetrics.heightPixels - (displayMetrics.heightPixels * 0.2));
         int width = displayMetrics.widthPixels;
 
-        settingsDialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @Override
-            public void onShow(DialogInterface dialog) {
-                ImageView medicineImageView = (ImageView) settingsDialog.findViewById(R.id.medicineImageViewer);
-                medicineImageView.setImageBitmap(medicineDataModel.getMedicinePhoto());
+        settingsDialog.setOnShowListener(dialog -> {
+            ImageView medicineImageView = (ImageView) settingsDialog.findViewById(R.id.medicineImageViewer);
+            medicineImageView.setImageBitmap(medicineDataModel.getMedicinePhoto());
 
-                LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams( width, height);
-                medicineImageView.setLayoutParams(layoutParams);
-            }
+            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams( width, height);
+            medicineImageView.setLayoutParams(layoutParams);
         });
 
         Button dismissButton = (Button) settingsDialog.findViewById(R.id.dismissButton);
@@ -96,6 +95,21 @@ public class MedicineLVAdapter extends ArrayAdapter<Medicine> {
             // on the item click on our list view.
             // we are displaying a toast message.
             Toast.makeText(getContext(), "Item clicked is : " + medicineDataModel.getName(), Toast.LENGTH_SHORT).show();
+        });
+
+        Button deleteMedicineButton = listView.findViewById(R.id.deleteButton);
+        deleteMedicineButton.setOnClickListener( v -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+            builder.setMessage("Do you want to delete \""+medicineDataModel.getName()+"\" from the list?");
+            builder.setPositiveButton("Ok", (dialog, id) -> {
+                DBDelete dbDelete = new DBDelete(getContext());
+                dbDelete.deleteEntry(medicineDataModel.getStartDate(), medicineDataModel.getName());
+                Toast.makeText(getContext(), "Deleted medicine is : " + medicineDataModel.getName(), Toast.LENGTH_LONG).show();
+                ((MainActivity)getContext()).resetView();
+            });
+            builder.setNegativeButton("Cancel", (dialog, id) -> dialog.dismiss());
+            builder.show();
+
         });
         return listView;
     }

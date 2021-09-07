@@ -89,6 +89,12 @@ public class MainActivity extends AppCompatActivity {
         Log.d("Resume", "Executed");
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public void resetView(){
+        paintAllMedsDataOnCalendar();
+        clearListView();
+    }
+
     // schedule the start of the service every 10 - 30 seconds
     @RequiresApi(api = Build.VERSION_CODES.M)
     public static void scheduleJob(Context context) {
@@ -116,6 +122,11 @@ public class MainActivity extends AppCompatActivity {
         } else {
             medicinesLV.setAdapter(null);
         }
+    }
+
+    private void clearListView(){
+        medicinesLV = findViewById(R.id.dynamicList);
+        medicinesLV.setAdapter(null);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
