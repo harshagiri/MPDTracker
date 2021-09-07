@@ -1,6 +1,8 @@
 package edu.umo.mpdtracker;
 
 import android.Manifest;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.content.ComponentName;
@@ -35,6 +37,7 @@ import edu.umo.mpdtracker.Model.Medicine;
 import edu.umo.mpdtracker.adapter.MedicineLVAdapter;
 import edu.umo.mpdtracker.persist.DBReader;
 import edu.umo.mpdtracker.scheduler.MPDJobService;
+import edu.umo.mpdtracker.scheduler.MPDServiceReceiver;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -73,6 +76,8 @@ public class MainActivity extends AppCompatActivity {
 
         //Schedule the job as final activity on app startup.
         MainActivity.scheduleJob(MainActivity.this);
+
+        //setAlert();
     }
 
     @Override
@@ -102,6 +107,7 @@ public class MainActivity extends AppCompatActivity {
         JobInfo.Builder builder = new JobInfo.Builder(0, serviceComponent);
         builder.setMinimumLatency(1 * 60 * 60 * 1000); // wait at least
         builder.setOverrideDeadline(8 * 60 * 60 * 1000); // maximum delay
+        //builder.setPeriodic(8 * 60 * 60 * 1000); //Every 8 hours to trigger the job
         builder.setRequiresCharging(false); // we don't care if the device is charging or not
         JobScheduler jobScheduler = context.getSystemService(JobScheduler.class);
         jobScheduler.schedule(builder.build());
@@ -187,5 +193,21 @@ public class MainActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{
                     Manifest.permission.CAMERA}, RequestPermissionCode);
         }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private void setAlert(){
+        Intent intent = new Intent(this, MPDServiceReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                this.getApplicationContext(), 234324243, intent, 0);
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        calendar.set(Calendar.HOUR_OF_DAY, 12);
+        calendar.set(Calendar.MINUTE, 15);
+        calendar.set(Calendar.AM_PM, Calendar.AM);
+
+        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
     }
 }
