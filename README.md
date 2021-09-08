@@ -24,3 +24,5 @@ This project is built as an academic project and resources are consumed from int
 https://github.com/Applandeo/Material-Calendar-View
 
 Sticks to GNU - https://www.gnu.org/licenses/gpl-3.0.en.html
+
+Icons - <a href="https://iconscout.com/icons/medicine-time" target="_blank">Medicine Time Icon</a> on <a href="https://iconscout.com">Iconscout</a>
