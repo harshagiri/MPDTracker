@@ -37,14 +37,14 @@
                 android:id="@+id/idLinearLayoutProductImage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
+                android:layout_alignParentLeft="false"
                 android:longClickable="false"
                 tools:ignore="SpeakableTextPresentCheck">
 
                 <ImageView
                     android:id="@+id/idProductImage"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
                     android:longClickable="false" />
             </LinearLayout>
 
@@ -61,17 +61,18 @@
                 <TextView
                     android:id="@+id/idMedicineName"
                     android:layout_width="200dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentTop="true"
+                    android:layout_height="52dp"
+                    android:layout_gravity="left"
+                    android:layout_marginStart="50dp"
                     android:layout_toRightOf="@+id/idLinearLayout"
-                    android:gravity="center_vertical|center_horizontal"
+                    android:gravity="start|center_horizontal|center_vertical"
                     android:longClickable="false"
                     android:textSize="25dp"
                     tools:textColor="@android:color/black" />
 
                 <TextView
                     android:id="@+id/idDosage"
-                    android:layout_width="wrap_content"
+                    android:layout_width="70dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical|center_horizontal"
                     android:textSize="20dp"
@@ -80,10 +81,10 @@
 
                 <Button
                     android:id="@+id/deleteButton"
-                    android:layout_width="wrap_content"
+                    android:layout_width="30dp"
                     android:layout_height="wrap_content"
-                    android:layout_margin="2dp"
-                    android:layout_weight="1"
+                    android:layout_gravity="start|right"
+                    android:layout_margin="0dp"
                     app:icon="@android:drawable/ic_menu_delete"
                     app:iconGravity="textEnd"
                     app:iconPadding="0dp" />
