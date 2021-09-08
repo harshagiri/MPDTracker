@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.icu.text.SimpleDateFormat;
 import android.icu.util.Calendar;
 import android.os.Build;
+import android.util.Log;
 
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
@@ -40,7 +41,10 @@ public class MPDJobService extends JobService {
 
         if(createNotifyChannel()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                displayNotification();
+                for (Medicine medicine: buildData()) {
+                    Log.d("OBJECT", medicine.getName());
+                    displayNotification(medicine);
+                }
             }
         }
         return true;
@@ -52,7 +56,7 @@ public class MPDJobService extends JobService {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    private Medicine buildData(){
+    private List<Medicine> buildData(){
         //Get current date
         Calendar mCalendar = Calendar.getInstance();
         int year = mCalendar.get(Calendar.YEAR);
@@ -66,20 +70,19 @@ public class MPDJobService extends JobService {
 
         //Build Medicine model
         if (returnedValue != null && returnedValue.size() > 0) {
-            return (Medicine) returnedValue.get(0);
+            return returnedValue;
         }
         return null;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    private void displayNotification() {
+    private void displayNotification(Medicine med) {
 
         // Create an explicit intent for an Activity in your app
         Intent intent = new Intent(this.getApplicationContext(), MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent pendingIntent = PendingIntent.getActivity(this.getApplicationContext(), 0, intent, 0);
 
-        Medicine med = buildData();
         if(med != null){
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this.getApplicationContext(), CHANNEL_ID)
                     .setSmallIcon(R.drawable.icons8_medicine_64)
@@ -89,6 +92,7 @@ public class MPDJobService extends JobService {
                     .setContentIntent(pendingIntent)
                     .setCategory(NotificationCompat.CATEGORY_REMINDER)
                     .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                    .setGroup("Medicine")
                     .setAutoCancel(true);
 
             NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this.getApplicationContext());

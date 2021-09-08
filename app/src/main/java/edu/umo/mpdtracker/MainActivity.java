@@ -170,6 +170,11 @@ public class MainActivity extends AppCompatActivity {
 
         CalendarView calendarView = (CalendarView) findViewById(R.id.calendarView);
         calendarView.setEvents(events);
+
+        //Load today's data in list view by default
+        java.util.Calendar currentCalendar = java.util.Calendar.getInstance();
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        paintMedicineDataOnCalendar(formatter.format(currentCalendar.getTime()));
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
