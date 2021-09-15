@@ -2,13 +2,20 @@ package edu.umo.mpdtracker;
 
 import android.Manifest;
 import android.app.DatePickerDialog;
+import android.app.Dialog;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.icu.text.SimpleDateFormat;
 import android.icu.util.Calendar;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -20,11 +27,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.chip.Chip;
+import com.google.mlkit.vision.common.InputImage;
+import com.google.mlkit.vision.text.Text;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -32,11 +44,14 @@ import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import edu.umo.mpdtracker.Model.Medicine;
+import edu.umo.mpdtracker.ocr.TextRecognitionUtil;
 import edu.umo.mpdtracker.persist.DBWriter;
 
 public class AddMedicineActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
     public static final int RequestPermissionCode = 1;
+    private static final int SELECT_PICTURE = 200;
 
+    Button scanPrescriptionButton;
     TextView medNameTV;
     Spinner medTypeSpinner;
     TextView datePicker;
@@ -54,13 +69,54 @@ public class AddMedicineActivity extends AppCompatActivity implements DatePicker
     boolean morningIsSelected = false;
     boolean afternoonIsSelected = false;
     boolean nightIsSelected = false;
+    boolean readFromFile = false;
 
     Medicine medicine;
+    Uri imageUri = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_medicine);
+
+        scanPrescriptionButton = findViewById(R.id.scanButton);
+        scanPrescriptionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                InputImage image = null;
+                Resources resources = AddMedicineActivity.this.getResources();
+                Uri uri = new Uri.Builder()
+                        .scheme(ContentResolver.SCHEME_ANDROID_RESOURCE)
+                        .authority(resources.getResourcePackageName(R.drawable.testdata1))
+                        .appendPath(resources.getResourceTypeName(R.drawable.testdata1))
+                        .appendPath(resources.getResourceEntryName(R.drawable.testdata1))
+                        .build();
+                try {
+                    image = InputImage.fromFilePath(AddMedicineActivity.this, uri);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                TextRecognitionUtil textRecognitionUtil = new TextRecognitionUtil();
+                Task<Text> returnedText = textRecognitionUtil.recognizeText(image);
+
+                textRecognitionUtil.processTextBlock(returnedText.getResult());
+
+                /*Bitmap scannedPrescription = scanPrescription();
+                if (scannedPrescription != null) {
+                    TextRecognitionUtil textRecognitionUtil = new TextRecognitionUtil();
+
+                    InputImage scannedImage = InputImage.fromBitmap(scannedPrescription, 0);
+                    Task<Text> returnedText = textRecognitionUtil.recognizeText(scannedImage);
+
+                    textRecognitionUtil.processTextBlock(returnedText.getResult());
+                } else {
+                    Toast.makeText(getApplicationContext(), "No valid prescription to scan", Toast.LENGTH_LONG);
+                }*/
+
+            }
+        });
 
         medNameTV = findViewById(R.id.medicineNameTV);
 
@@ -121,7 +177,7 @@ public class AddMedicineActivity extends AppCompatActivity implements DatePicker
             @Override
             public void onClick(View v) {
                 try {
-                    if (collectFormData()){
+                    if (collectFormData()) {
                         DBWriter writer = new DBWriter(AddMedicineActivity.this);
                         writer.writeDataToDB(medicine);
                         AddMedicineActivity.this.finish();
@@ -167,35 +223,35 @@ public class AddMedicineActivity extends AppCompatActivity implements DatePicker
     @RequiresApi(api = Build.VERSION_CODES.N)
     private boolean collectFormData() throws ParseException {
         String medNameString = null;
-        if(medNameTV.getText() != null && !medNameTV.getText().toString().isEmpty()){
+        if (medNameTV.getText() != null && !medNameTV.getText().toString().isEmpty()) {
             medNameString = medNameTV.getText().toString();
         } else {
             return false;
         }
 
         String medTypeString = null;
-        if(medTypeSpinner.getSelectedItem() != null && !medTypeSpinner.getSelectedItem().toString().isEmpty()){
+        if (medTypeSpinner.getSelectedItem() != null && !medTypeSpinner.getSelectedItem().toString().isEmpty()) {
             medTypeString = medTypeSpinner.getSelectedItem().toString();
         } else {
             return false;
         }
 
         String medStartDateString = null;
-        if(datePicker.getText() != null && !datePicker.getText().toString().isEmpty()){
+        if (datePicker.getText() != null && !datePicker.getText().toString().isEmpty()) {
             medStartDateString = datePicker.getText().toString();
         } else {
             return false;
         }
 
         String medDaysString = null;
-        if(medDaysTV.getText() != null && !medDaysTV.getText().toString().isEmpty()){
+        if (medDaysTV.getText() != null && !medDaysTV.getText().toString().isEmpty()) {
             medDaysString = medDaysTV.getText().toString();
         } else {
             return false;
         }
 
         String medEndDateString = null;
-        if(datePicker.getText() != null && !datePicker.getText().toString().isEmpty()){
+        if (datePicker.getText() != null && !datePicker.getText().toString().isEmpty()) {
             medEndDateString = computeEndDate(datePicker.getText().toString(), medDaysString);
         } else {
             return false;
@@ -208,7 +264,7 @@ public class AddMedicineActivity extends AppCompatActivity implements DatePicker
         Bitmap medicinePhoto = null;
         if (tempBitMap != null) {
             Bitmap emptyMap = Bitmap.createBitmap(tempBitMap.getWidth(), tempBitMap.getHeight(), tempBitMap.getConfig());
-            if(emptyMap.sameAs(tempBitMap)){
+            if (emptyMap.sameAs(tempBitMap)) {
                 return false;
             } else {
                 medicinePhoto = tempBitMap;
@@ -252,7 +308,7 @@ public class AddMedicineActivity extends AppCompatActivity implements DatePicker
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 7 && resultCode == RESULT_OK) {
+        if (resultCode == RESULT_OK && requestCode == 7) {
             Bitmap bitmap = (Bitmap) data.getExtras().get("data");
             medicinePhoto1.setImageBitmap(bitmap);
             tempBitMap = bitmap;
@@ -281,5 +337,17 @@ public class AddMedicineActivity extends AppCompatActivity implements DatePicker
             ActivityCompat.requestPermissions(AddMedicineActivity.this, new String[]{
                     Manifest.permission.CAMERA}, RequestPermissionCode);
         }
+    }
+
+    private Bitmap scanPrescription() {
+        if (tempBitMap != null) {
+            Bitmap emptyMap = Bitmap.createBitmap(tempBitMap.getWidth(), tempBitMap.getHeight(), tempBitMap.getConfig());
+            if (emptyMap.sameAs(tempBitMap)) {
+                return null;
+            } else {
+                return tempBitMap;
+            }
+        }
+        return null;
     }
 }

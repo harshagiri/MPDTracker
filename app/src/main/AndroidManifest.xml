@@ -34,6 +34,10 @@
         </activity>
 
         <activity android:name=".AddMedicineActivity"></activity>
+
+        <meta-data
+            android:name="com.google.mlkit.vision.DEPENDENCIES"
+            android:value="ocr" />
     </application>
     ß<uses-permission android:name="android.permission.CAMERA" />
     <!--<uses-feature android:name="android.hardware.camera" android:required="true"/>-->
