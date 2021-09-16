@@ -14,10 +14,11 @@ Features - Current
 3. A list view showing medicine photo and dosage on selecting a day
 4. Add medicines with as minimal data to keep track of medicines prescribed
 5. Take photo to ensure that clarity is there while consuming
+6. Reminder in morning, afternoon and night to take tablests
 
 Features - in pipeline
-1. Reminder in morning, afternoon and night to take tablests
-2. Modifying or deleting medicines added
+1. Modifying or deleting medicines added
+2. Scanning the prescription and auto populating the medicine prescribed
 
 This project is built as an academic project and resources are consumed from internet. I do not own the complete ownership hence will be suggested to use under GPL license.
 
